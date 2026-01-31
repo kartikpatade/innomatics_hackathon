@@ -1,0 +1,1438 @@
+C:\Program Files\MySQL\MySQL Server 8.0\bin>mysql -u root -p
+Enter password: *********
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 8
+Server version: 8.0.34 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2023, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> CREATE DATABASE food_db;
+Query OK, 1 row affected (0.00 sec)
+
+mysql> USE food_db;
+Database changed
+mysql> CREATE TABLE orders (
+    ->   order_id INT,
+    ->   user_id INT,
+    ->   restaurant_id INT,
+    ->   order_date DATE,
+    ->   order_amount DECIMAL(10,2)
+    -> );
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> SET GLOBAL local_infile = 1;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> exit
+Bye
+
+C:\Program Files\MySQL\MySQL Server 8.0\bin>mysql -u root -p --local-infile=1
+Enter password: ************
+ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
+
+C:\Program Files\MySQL\MySQL Server 8.0\bin>mysql -u root -p --local-infile=1
+Enter password: *********
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 10
+Server version: 8.0.34 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2023, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> USE food_db;
+Database changed
+mysql> LOAD DATA INFILE
+    -> 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/orders.csv'
+    -> INTO TABLE orders
+    -> FIELDS TERMINATED BY ','
+    -> IGNORE 1 ROWS;
+ERROR 1292 (22007): Incorrect date value: '18-02-2023' for column 'order_date' at row 1
+mysql> LOAD DATA INFILE
+    -> "C:\ProgramData\MySQL\MySQL Server 8.0\Uploads\orders.csv"
+    -> INTO TABLE orders
+    -> FIELDS TERMINATED BY ','
+    -> IGNORE 1 ROWS;
+ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot execute this statement
+mysql> LOAD DATA INFILE
+    -> "C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/orders.csv"
+    -> INTO TABLE orders
+    -> FIELDS TERMINATED BY ','
+    -> IGNORE 1 ROWS;
+ERROR 1292 (22007): Incorrect date value: '18-02-2023' for column 'order_date' at row 1
+mysql> LOAD DATA INFILE
+    -> 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/orders.csv'
+    -> INTO TABLE orders
+    -> FIELDS TERMINATED BY ','
+    -> IGNORE 1 ROWS
+    -> (order_id, user_id, restaurant_id, @order_date, order_amount)
+    -> SET order_date = STR_TO_DATE(@order_date, '%d-%m-%Y');
+ERROR 1262 (01000): Row 1 was truncated; it contained more data than there were input columns
+mysql> ALTER TABLE orders MODIFY order_date VARCHAR(20);
+Query OK, 0 rows affected (0.02 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM orders LIMIT 5;
+Empty set (0.00 sec)
+
+mysql> order_id,user_id,restaurant_id,order_date,order_amount
+    ->
+    -> DROP TABLE orders;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'order_id,user_id,restaurant_id,order_date,order_amount
+
+DROP TABLE orders' at line 1
+mysql> DROP TABLE orders;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> CREATE TABLE orders (
+    ->   order_id INT,
+    ->   user_id INT,
+    ->   restaurant_id INT,
+    ->   order_date DATE,
+    ->   order_amount DECIMAL(10,2)
+    -> );
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> LOAD DATA INFILE
+    -> 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/orders.csv'
+    -> INTO TABLE orders
+    -> FIELDS TERMINATED BY ','
+    -> IGNORE 1 ROWS
+    -> (order_id,
+    ->  user_id,
+    ->  restaurant_id,
+    ->  @order_date,
+    ->  order_amount,
+    ->  @restaurant_name)
+    -> SET order_date = STR_TO_DATE(@order_date, '%d-%m-%Y');
+Query OK, 10000 rows affected (0.15 sec)
+Records: 10000  Deleted: 0  Skipped: 0  Warnings: 0
+
+mysql> SELECT * FROM orders LIMIT 5;
++----------+---------+---------------+------------+--------------+
+| order_id | user_id | restaurant_id | order_date | order_amount |
++----------+---------+---------------+------------+--------------+
+|        1 |    2508 |           450 | 2023-02-18 |       842.97 |
+|        2 |    2693 |           309 | 2023-01-18 |       546.68 |
+|        3 |    2084 |           107 | 2023-07-15 |       163.93 |
+|        4 |     319 |           224 | 2023-10-04 |      1155.97 |
+|        5 |    1064 |           293 | 2023-12-25 |      1321.91 |
++----------+---------+---------------+------------+--------------+
+5 rows in set (0.00 sec)
+
+mysql> CREATE TABLE users (
+    ->   user_id INT,
+    ->   user_name VARCHAR(100),
+    ->   city VARCHAR(50),
+    ->   membership VARCHAR(20)
+    -> );
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> LOAD DATA INFILE
+    -> 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/users.csv'
+    -> INTO TABLE users
+    -> FIELDS TERMINATED BY ','
+    -> OPTIONALLY ENCLOSED BY '"'
+    -> IGNORE 1 ROWS;
+ERROR 29 (HY000): File 'C:\ProgramData\MySQL\MySQL Server 8.0\Uploads\users.csv' not found (OS errno 2 - No such file or directory)
+mysql> LOAD DATA INFILE
+    -> 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/users.csv'
+    -> INTO TABLE users
+    -> FIELDS TERMINATED BY ','
+    -> OPTIONALLY ENCLOSED BY '"'
+    -> IGNORE 1 ROWS;
+' for column 'user_id' at row 1nteger value: '[Record]
+mysql> USE food_db;
+Database changed
+mysql>
+mysql> DROP TABLE IF EXISTS users;
+Query OK, 0 rows affected (0.02 sec)
+
+mysql>
+mysql> CREATE TABLE users (
+    ->   user_id INT,
+    ->   user_name VARCHAR(100),
+    ->   city VARCHAR(50),
+    ->   membership VARCHAR(20)
+    -> );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> LOAD DATA INFILE
+    -> 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/users.csv'
+    -> INTO TABLE users
+    -> FIELDS TERMINATED BY ','
+    -> OPTIONALLY ENCLOSED BY '"'
+    -> IGNORE 1 ROWS;
+Query OK, 3000 rows affected (0.09 sec)
+Records: 3000  Deleted: 0  Skipped: 0  Warnings: 0
+
+mysql> SELECT * FROM users LIMIT 5;
++---------+-----------+-----------+------------+
+| user_id | user_name | city      | membership |
++---------+-----------+-----------+------------+
+   |    1 | User_1    | Chennai   | Regular
+      | 2 | User_2    | Pune      | Gold
+      | 3 | User_3    | Bangalore | Gold
+   |    4 | User_4    | Bangalore | Regular
+      | 5 | User_5    | Pune      | Gold
++---------+-----------+-----------+------------+
+5 rows in set (0.00 sec)
+
+mysql> SOURCE C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/restaurants.sql;
+Query OK, 0 rows affected (0.03 sec)
+
+Query OK, 1 row affected (0.01 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+mysql> SELECT * FROM restaurants LIMIT 5;
++---------------+-----------------+---------+--------+
+| restaurant_id | restaurant_name | cuisine | rating |
++---------------+-----------------+---------+--------+
+|             1 | Restaurant_1    | Chinese |    4.8 |
+|             2 | Restaurant_2    | Indian  |    4.1 |
+|             3 | Restaurant_3    | Mexican |    4.3 |
+|             4 | Restaurant_4    | Chinese |    4.1 |
+|             5 | Restaurant_5    | Chinese |    4.8 |
++---------------+-----------------+---------+--------+
+5 rows in set (0.00 sec)
+
+mysql> restaurants loaded
+    -> CREATE TABLE final_food_delivery_dataset AS
+    -> SELECT
+    ->     o.order_id,
+    ->     o.order_date,
+    ->     o.order_amount,
+    ->     u.user_id,
+    ->     u.user_name,
+    ->     u.city,
+    ->     u.membership,
+    ->     r.restaurant_id,
+    ->     r.restaurant_name,
+    ->     r.cuisine,
+    ->     r.rating
+    -> FROM orders o
+    -> LEFT JOIN users u
+    ->     ON o.user_id = u.user_id
+    -> LEFT JOIN restaurants r
+    ->     ON o.restaurant_id = r.restaurant_id;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'restaurants loaded
+CREATE TABLE final_food_delivery_dataset AS
+SELECT
+    o.orde' at line 1
+mysql> CREATE TABLE final_food_delivery_dataset AS
+    -> SELECT
+    ->     o.order_id,
+    ->     o.order_date,
+    ->     o.order_amount,
+    ->     u.user_id,
+    ->     u.user_name,
+    ->     u.city,
+    ->     u.membership,
+    ->     r.restaurant_id,
+    ->     r.restaurant_name,
+    ->     r.cuisine,
+    ->     r.rating
+    -> FROM orders o
+    -> LEFT JOIN users u
+    ->     ON o.user_id = u.user_id
+    -> LEFT JOIN restaurants r
+    ->     ON o.restaurant_id = r.restaurant_id;
+Query OK, 10000 rows affected (0.47 sec)
+Records: 10000  Duplicates: 0  Warnings: 0
+
+mysql> SELECT * FROM final_food_delivery_dataset LIMIT 5;
++----------+------------+--------------+---------+-----------+-----------+------------+---------------+-----------------+---------+--------+
+| order_id | order_date | order_amount | user_id | user_name | city      | membership | restaurant_id | restaurant_name | cuisine | rating |
++----------+------------+--------------+---------+-----------+-----------+------------+---------------+-----------------+---------+--------+
+|        1 | 2023-02-18 |       842.97 |    2508 | User_2508 | Hyderabad | R   |           450 | Restaurant_450  | Mexican |    3.2 |
+|        2 | 2023-01-18 |       546.68 |    2693 | User_2693 | Pune      | R   |           309 | Restaurant_309  | Indian  |    4.5 |
+|        3 | 2023-07-15 |       163.93 |    2084 | User_2084 | Chennai   | G      |           107 | Restaurant_107  | Mexican |      4 |
+|        4 | 2023-10-04 |      1155.97 |     319 | User_319  | Bangalore | G      |           224 | Restaurant_224  | Chinese |    4.8 |
+|        5 | 2023-12-25 |      1321.91 |    1064 | User_1064 | Pune      | R   |           293 | Restaurant_293  | Italian |      3 |
++----------+------------+--------------+---------+-----------+-----------+------------+---------------+-----------------+---------+--------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT * FROM final_food_delivery_dataset LIMIT 5;
++----------+------------+--------------+---------+-----------+-----------+------------+---------------+-----------------+---------+--------+
+| order_id | order_date | order_amount | user_id | user_name | city      | membership | restaurant_id | restaurant_name | cuisine | rating |
++----------+------------+--------------+---------+-----------+-----------+------------+---------------+-----------------+---------+--------+
+|        1 | 2023-02-18 |       842.97 |    2508 | User_2508 | Hyderabad | R   |           450 | Restaurant_450  | Mexican |    3.2 |
+|        2 | 2023-01-18 |       546.68 |    2693 | User_2693 | Pune      | R   |           309 | Restaurant_309  | Indian  |    4.5 |
+|        3 | 2023-07-15 |       163.93 |    2084 | User_2084 | Chennai   | G      |           107 | Restaurant_107  | Mexican |      4 |
+|        4 | 2023-10-04 |      1155.97 |     319 | User_319  | Bangalore | G      |           224 | Restaurant_224  | Chinese |    4.8 |
+|        5 | 2023-12-25 |      1321.91 |    1064 | User_1064 | Pune      | R   |           293 | Restaurant_293  | Italian |      3 |
++----------+------------+--------------+---------+-----------+-----------+------------+---------------+-----------------+---------+--------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT *
+    -> FROM final_food_delivery_dataset
+    -> INTO OUTFILE
+    -> 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/final_food_delivery_dataset.csv'
+    -> FIELDS TERMINATED BY ','
+    -> ENCLOSED BY '"'
+    -> LINES TERMINATED BY '\n';
+Query OK, 10000 rows affected (0.07 sec)
+
+mysql> SELECT
+    ->   'order_id',
+    ->   'order_date',
+    ->   'order_amount',
+    ->   'user_id',
+    ->   'user_name',
+    ->   'city',
+    ->   'membership',
+    ->   'restaurant_id',
+    ->   'restaurant_name',
+    ->   'cuisine',
+    ->   'rating'
+    -> UNION ALL
+    -> SELECT
+    ->   order_id,
+    ->   order_date,
+    ->   order_amount,
+    ->   user_id,
+    ->   user_name,
+    ->   city,
+    ->   membership,
+    ->   restaurant_id,
+    ->   restaurant_name,
+    ->   cuisine,
+    ->   rating
+    -> FROM final_food_delivery_dataset
+    -> INTO OUTFILE
+    -> 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/final_food_delivery_dataset.csv'
+    -> FIELDS TERMINATED BY ','
+    -> ENCLOSED BY '"'
+    -> LINES TERMINATED BY '\n';
+ERROR 1086 (HY000): File 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/final_food_delivery_dataset.csv' already exists
+mysql> SELECT
+    ->   'order_id',
+    ->   'order_date',
+    ->   'order_amount',
+    ->   'user_id',
+    ->   'user_name',
+    ->   'city',
+    ->   'membership',
+    ->   'restaurant_id',
+    ->   'restaurant_name',
+    ->   'cuisine',
+    ->   'rating'
+    -> UNION ALL
+    -> SELECT
+    ->   order_id,
+    ->   order_date,
+    ->   order_amount,
+    ->   user_id,
+    ->   user_name,
+    ->   city,
+    ->   membership,
+    ->   restaurant_id,
+    ->   restaurant_name,
+    ->   cuisine,
+    ->   rating
+    -> FROM final_food_delivery_dataset
+    -> INTO OUTFILE
+    -> 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/final_food_delivery_dataset.csv'
+    -> FIELDS TERMINATED BY ','
+    -> ENCLOSED BY '"'
+    -> LINES TERMINATED BY '\n';
+Query OK, 10001 rows affected (0.12 sec)
+
+mysql> DROP TABLE IF EXISTS final_food_delivery_dataset;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> CREATE TABLE final_food_delivery_dataset AS
+    -> SELECT
+    ->     o.order_id,
+    ->     o.order_date,
+    ->     o.order_amount,
+    ->
+    ->     u.user_id,
+    ->     u.user_name,
+    ->     u.city,
+    ->     u.membership,
+    ->
+    ->     r.restaurant_id,
+    ->     r.restaurant_name,   -- ✅ FULL RESTAURANT NAME
+    ->     r.cuisine,
+    ->     r.rating
+    ->
+    -> FROM orders o
+    -> LEFT JOIN users u
+    ->     ON o.user_id = u.user_id
+    -> LEFT JOIN restaurants r
+    ->     ON o.restaurant_id = r.restaurant_id;
+Query OK, 10000 rows affected (0.19 sec)
+Records: 10000  Duplicates: 0  Warnings: 0
+
+mysql> SELECT restaurant_id, restaurant_name
+    -> FROM final_food_delivery_dataset
+    -> LIMIT 10;
++---------------+-----------------+
+| restaurant_id | restaurant_name |
++---------------+-----------------+
+|           450 | Restaurant_450  |
+|           309 | Restaurant_309  |
+|           107 | Restaurant_107  |
+|           224 | Restaurant_224  |
+|           293 | Restaurant_293  |
+|           499 | Restaurant_499  |
+|            35 | Restaurant_35   |
+|            57 | Restaurant_57   |
+|             7 | Restaurant_7    |
+|           183 | Restaurant_183  |
++---------------+-----------------+
+10 rows in set (0.00 sec)
+
+mysql> SELECT
+    ->     restaurant_name,
+    ->     AVG(order_amount) AS avg_order_value,
+    ->     COUNT(*) AS total_orders
+    -> FROM final_food_delivery_dataset
+    -> GROUP BY restaurant_name
+    -> HAVING COUNT(*) < 20
+    -> ORDER BY avg_order_value DESC
+    -> LIMIT 1;
++-----------------+-----------------+--------------+
+| restaurant_name | avg_order_value | total_orders |
++-----------------+-----------------+--------------+
+| Restaurant_294  |     1040.222308 |           13 |
++-----------------+-----------------+--------------+
+1 row in set (0.03 sec)
+
+mysql> SELECT DISTINCT restaurant_name, cuisine
+    -> FROM final_food_delivery_dataset
+    -> WHERE restaurant_name = 'Restaurant_294';
++-----------------+---------+
+| restaurant_name | cuisine |
++-----------------+---------+
+| Restaurant_294  | Italian |
++-----------------+---------+
+1 row in set (0.01 sec)
+
+mysql> SELECT COUNT(*) AS total_gold_orders
+    -> FROM final_food_delivery_dataset
+    -> WHERE membership = 'Gold';
++-------------------+
+| total_gold_orders |
++-------------------+
+|                 0 |
++-------------------+
+1 row in set (0.01 sec)
+
+mysql>
+
+
+
+
+
+
+
+
